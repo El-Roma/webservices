@@ -4,6 +4,7 @@ import { UsersModule } from './users/users.module';
 import { RoomsModule } from './rooms/rooms.module';
 import { ReservationsModule } from './reservations/reservations.module';
 import { NotificationsModule } from './notifications/notifications.module';
+import {AuthModule} from "./auth/auth.module";
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { NotificationsModule } from './notifications/notifications.module';
     }),
     UsersModule,
     RoomsModule,
+    AuthModule,
     ReservationsModule,
     NotificationsModule,
   ],

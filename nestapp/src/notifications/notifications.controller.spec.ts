@@ -2,7 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { NotificationsController } from './notifications.controller';
 
 describe('NotificationsController', () => {
-  let controller: NotificationsController;
+  let controller: TResult;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
