@@ -1,9 +1,8 @@
-import { Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from '../entities/user.entity';
 import { Repository } from 'typeorm';
-import { LoginDto, UserResponseDto } from '../dto/user.dto';
-import { JwtService } from '@nestjs/jwt';
+import { UserResponseDto, CreateUserDto, UpdateUserDto } from '../dto/user.dto';
 import { plainToClass } from 'class-transformer';
 
 @Injectable()
@@ -11,7 +10,6 @@ export class UsersService {
   constructor(
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
-    private jwtService: JwtService,
   ) {}
 
   async findAll(skip = 0, limit = 10): Promise<UserResponseDto[]> {
@@ -30,25 +28,37 @@ export class UsersService {
     return plainToClass(UserResponseDto, user);
   }
 
-  async createUser(keycloak_id: string, email?: string): Promise<User> {
-    const newUser = this.userRepository.create({ keycloak_id, email });
+  async create(createUserDto: CreateUserDto): Promise<User> {
+    const newUser = this.userRepository.create(createUserDto);
     return this.userRepository.save(newUser);
   }
 
-  async login(loginDto: LoginDto): Promise<{ accessToken: string }> {
-    // Vérifier les identifiants avec Keycloak
-    const user = await this.userRepository.findOne({
-      where: { email: loginDto.email },
-    });
-
+  async update(id: number, updateUserDto: UpdateUserDto): Promise<User> {
+    const user = await this.userRepository.findOne({ where: { id } });
     if (!user) {
-      throw new UnauthorizedException('Identifiants invalides');
+      throw new NotFoundException(`Utilisateur avec l'ID ${id} non trouvé`);
+    }
+    Object.assign(user, updateUserDto);
+    return this.userRepository.save(user);
+  }
+
+  async remove(id: number): Promise<void> {
+    const result = await this.userRepository.delete(id);
+    if (result.affected === 0) {
+      throw new NotFoundException(`Utilisateur avec l'ID ${id} non trouvé`);
+    }
+  }
+
+  async extractUserData(id: number): Promise<UserResponseDto> {
+    const user = await this.userRepository.findOne({ 
+      where: { id },
+      relations: ['reservations', 'reservations.room']
+    });
+    
+    if (!user) {
+      throw new NotFoundException(`Utilisateur avec l'ID ${id} non trouvé`);
     }
 
-    // Générer le token JWT
-    const payload = { sub: user.id, email: user.email };
-    const accessToken = this.jwtService.sign(payload);
-
-    return { accessToken };
+    return plainToClass(UserResponseDto, user);
   }
 }

@@ -5,6 +5,7 @@ import { Reservation } from '../entities/reservation.entity';
 import { CreateReservationDto, UpdateReservationDto } from '../dto/reservation.dto';
 import { UsersService } from '../users/users.service';
 import { RoomsService } from '../rooms/rooms.service';
+import { User } from '../entities/user.entity';
 
 @Injectable()
 export class ReservationsService {
@@ -82,7 +83,7 @@ export class ReservationsService {
     
     // Mettre à jour l'utilisateur si nécessaire
     if (updateReservationDto.user_id !== undefined) {
-      const user = await this.usersService.findOne(updateReservationDto.user_id);
+      const user = await this.usersService.findOne(updateReservationDto.user_id) as User;
       reservation.user = user;
     }
     

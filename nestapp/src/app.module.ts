@@ -4,7 +4,8 @@ import { UsersModule } from './users/users.module';
 import { RoomsModule } from './rooms/rooms.module';
 import { ReservationsModule } from './reservations/reservations.module';
 import { NotificationsModule } from './notifications/notifications.module';
-import {AuthModule} from "./auth/auth.module";
+import { AuthModule } from "./auth/auth.module";
+import { MinioModule } from './minio/minio.module';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import {AuthModule} from "./auth/auth.module";
     AuthModule,
     ReservationsModule,
     NotificationsModule,
+    MinioModule,
   ],
 })
 export class AppModule {}
