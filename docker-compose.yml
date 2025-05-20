@@ -1,0 +1,51 @@
+version: '3.8'
+
+services:
+  api-graphql:
+    build: ./api-graphql
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=development
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_USERNAME=postgres
+      - DB_PASSWORD=postgres
+      - DB_DATABASE=reservations
+      - KEYCLOAK_URL=http://keycloak:8080
+      - KEYCLOAK_REALM=hotel
+      - KEYCLOAK_CLIENT_ID=hotel-client
+      - KEYCLOAK_CLIENT_SECRET=your-client-secret
+    depends_on:
+      - postgres
+      - keycloak
+
+  postgres:
+    image: postgres:14-alpine
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=reservations
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:21.1.1
+    platform: linux/arm64
+    ports:
+      - "8080:8080"
+    environment:
+      - KEYCLOAK_ADMIN=admin
+      - KEYCLOAK_ADMIN_PASSWORD=admin
+      - KC_DB=postgres
+      - KC_DB_URL=jdbc:postgresql://postgres:5432/reservations
+      - KC_DB_USERNAME=postgres
+      - KC_DB_PASSWORD=postgres
+    command: start-dev
+    depends_on:
+      - postgres
+
+volumes:
+  postgres_data: 
